@@ -1,27 +1,27 @@
 const mongoose = require("mongoose")
 
 const hotelSchema = new mongoose.Schema({
-    Reviews:[
+    reviews:[
         {
             type:String
         }
     ],
-    HotelName :{
+    hotelName :{
         type : String,
     },
-    City:{
+    city:{
         type:String,
     },
-    Description:{
+    description:{
         type : String,
     },
-    Amenities:{
+    amenities:{
         type :String,
     },
-    PhoneNo:{
+    phoneNo:{
         type :Number,
     },
-    Address:{
+    address:{
         type :String,
     },
 },

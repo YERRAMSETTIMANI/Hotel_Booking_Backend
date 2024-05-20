@@ -1,9 +1,9 @@
 const Hotel = require("../models/hotel");
 
 const addHotel = async (req,res)=>{
-    const {HotelName,City,Description,Amenities,PhoneNo,Address} = req.body
+    const {hotelName,city,description,amenities,phoneNo,address} = req.body
     try{
-        const newData = new Hotel({HotelName,City,Description,Amenities,PhoneNo,Address});
+        const newData = new Hotel({hotelName,city,description,amenities,phoneNo,address});
         await newData.save()
         res.status(201).json({"status" : "success" , newData});
     }

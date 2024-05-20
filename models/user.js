@@ -1,47 +1,59 @@
 const mongoose = require("mongoose")
-const mongooseSequence = require("mongoose-sequence")
 
 const userSchema = new mongoose.Schema({
-    // UserId :{
-    //     type : String,
-    //     unique:true,
-    //     required : true
-    // },
-    Name:{ 
+    name:{ 
         type : String,
         required:true,
     },
-    Address:{
+    address:{
         type :String,
         required :true
     },
-    EmailId:{
+    emailId:{
         type :String,
         required :true,
         unique:true
     },
-    PhoneNo:{
+    phoneNo:{
         type :Number,
         required :true
     },
-    Password:{
+    password:{
         type :String,
         required :true
     },
-    Booking:[
+    booking:[
         {
             type:mongoose.Schema.Types.ObjectId,
-            ref:"Booking"
+            ref:"booking"
         }
-    ]
+    ],
+    userId :{
+        type : String,
+        index: true,
+        unique: true,
+    },
 },
 {
     timestamps:true
 });
 
-if(! mongoose.models?.user){
-userSchema.plugin(mongooseSequence(mongoose),{ inc_field: 'UserId' });
-}
+userSchema.pre('save', async function (next) {
+    const user = this;
+    if (user.isNew) {
+        try{
+            const lastUser = await User.findOne().sort({ _id: -1 });
+            const lastId = lastUser ? lastUser.userId : 'U-000';
+            const idNumber = parseInt(lastId.split('-')[1], 10) + 1;
+            user.userId = `U-${idNumber.toString().padStart(3, '0')}`;
+        }
+        catch(error){
+            return next(error);
+        }
+        }
+    next();
+  });
+  
  
-const User = mongoose.model("user", userSchema);
+const User = mongoose.model("User", userSchema);
 module.exports = User;

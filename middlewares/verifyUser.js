@@ -6,12 +6,11 @@ const verifyUser = async(req,res,next)=>{
         return res.status(400).json("User is not logged in")
     }
     try {
-        const DecodedUserId = login.length === 5? parseInt(login.substr(2,3)):null;
-        const user = await User.find({UserId : DecodedUserId})
+        const user = await User.find({userId : login})
         if(!user){
             return res.status(400).json("User not existed")
         }
-        req.UserId = login;
+        req.userId = login;
         next()
 
     } catch (error) {
