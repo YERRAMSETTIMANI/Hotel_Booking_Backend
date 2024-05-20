@@ -4,6 +4,7 @@ const Hotel = require("../models/hotel");
 
 const bookRoom = async (req,res)=>{
     const {startDate,endDate,noOfPersons,noOfRooms,typeOfRoom} = req.body
+    console.log(req.params)
     const UserId = req.params.userId;
     const HotelName = req.params.hotelName;
     const User = await user.find({userId : UserId})
@@ -22,7 +23,7 @@ const bookRoom = async (req,res)=>{
         }
     }   
     const StartDateExist = listOfStartDates.filter(StartDate=> startDate === StartDate);
-    const q = new Date()
+    const q = new Date();
     const y = q.getFullYear();
     var m = +q.getMonth()+1;
     var m1 = m < 10 ? "0"+m : m;
@@ -56,7 +57,7 @@ const bookRoom = async (req,res)=>{
         const bookingData = await newData.save()
         User[0].booking.push(bookingData);
         User[0].save();
-        res.cookie(`${bookingData.bookingId}`,`${HotelName}`)
+        res.cookie(`${HotelName}`,`${bookingData.bookingId}`)
         return res.status(201).json({"status" : "success" , data :{message : `Successfully made a booking with booking id ${bookingData.bookingId}`}, bookingData})
     }
     catch(error){
@@ -138,7 +139,7 @@ const getTotalBookings = async (req,res)=>{
         BookingData.push(await Booking.find({_id: newData[0].booking[i]._id}))
         }
         if(BookingData.length){
-         return res.status(201).json({"status" : "success" ,"results": BookingData.length, data :{UserBookings : BookingData}})
+         return res.status(201).json({"status" : "success" ,"results": BookingData.length, data :{UserBookings : BookingData[0]}})
         }
         else{
         return res.status(400).json({"status" : "success" ,data :{message : "No Bookings done yet"}})

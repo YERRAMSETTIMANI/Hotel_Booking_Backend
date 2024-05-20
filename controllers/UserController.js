@@ -3,7 +3,7 @@ const User = require("../models/user");
 const userRegister = async (req,res)=>{
     const {name,address,emailId,phoneNo,password} = req.body
     try{
-        const exist = await User.findOne({emailId});
+        const exist = await User.findOne({emailId});  
         const validEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(emailId);
         if(exist){
             return res.status(400).json({"status" : "error" , data :{message : "User exists with this email id"}})
@@ -14,7 +14,7 @@ const userRegister = async (req,res)=>{
         else if(name.length <3){
             return res.status(400).json({"status" : "error" , data :{message : "Enter a valid name with at least 3 characters"}})
         }
-        else if(phoneNo.length < 10 || phoneNo.length >10){
+        else if(phoneNo.length !== 10){
             return res.status(400).json({"status" : "error" , data :{message : "Enter a valid phone no with 10 digitts"}})
         }
         else if(password.length < 8 || password.length > 12){
@@ -35,14 +35,13 @@ const userLogin = async (req,res)=>{
     const {userId,password} = req.body
     try{
         const exist = await User.findOne({userId :userId});
-        console.log(exist)
         if(!exist  || password !== exist.password){
             return res.status(400).json({"status" : "error" , data :{message : "Incorrect user Id or Password"} })
         }
         else if(password.length < 8 || password.length > 12){
             return res.status(400).json({"status" : "error" , data :{message : "Enter a valid password with atleast 8 and not more than 12 characters"} })
         }        
-        res.cookie('username', `${userId}`, {httpOnly: false });
+        res.cookie('username', userId , {httpOnly: false });
         return res.status(201).json({"status" : "success" , data :{message : "user login successfully"} })
     }
     catch(error){

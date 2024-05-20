@@ -8,10 +8,10 @@ const addReview = async (req,res)=>{
         if(HotelExist.length === 0){
         return res.status(400).json({"status" : "error" , data : {message : "Not a valid Hotel Name"}});
         }
-        const BookingId = req.cookies[`${hotelName}`]
+        const BookingId = req.cookies[hotelName]
         var bookExist = await Booking.find({bookingId : BookingId})
         const todayDate= new Date()
-        const checkEndDate = bookExist[0].EndDate <= todayDate;
+        const checkEndDate = bookExist[0].endDate <= todayDate;
         if(! checkEndDate){
         return res.status(400).json({"status" : "error" , data : {message : "Cannot add a review until you stay at this hotel"}});
         }
@@ -34,7 +34,7 @@ const getReviews = async (req,res)=>{
         if(! newData[0].reviews.length){
         return res.status(400).json({"status" : "error" , data :{message : `No reviews added yet for ${hotelName}`}})
         }
-        return res.status(201).json({"status" : "success" ,"results": newData[0].Reviews.length, data :[{Reviews}]})
+        return res.status(201).json({"status" : "success" ,"results": newData[0].reviews.length, data :[{Reviews}]})
     }
     catch(error){
         return res.status(500).json({error:"internal server error"})

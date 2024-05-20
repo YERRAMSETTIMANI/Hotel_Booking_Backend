@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-const mongooseSequence = require("mongoose-sequence")
 
 const bookingSchema = new mongoose.Schema({
     bookingId :{
