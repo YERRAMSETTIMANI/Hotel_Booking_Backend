@@ -4,14 +4,13 @@ const Hotel = require("../models/hotel");
 
 const bookRoom = async (req,res)=>{
     const {startDate,endDate,noOfPersons,noOfRooms,typeOfRoom} = req.body
-    console.log(req.params)
     const UserId = req.params.userId;
     const HotelName = req.params.hotelName;
     const User = await user.find({userId : UserId})
     const HotelExist = await Hotel.find({hotelName : HotelName})
     const listOfStartDates = [];
-    for(let i=0; i< User[0].booking.length ; i++){
-        var BookExist = await Booking.find({_id: User[0].booking[i]._id})
+    for(let i=0; i< User[0].UserBookings.length ; i++){
+        var BookExist = await Booking.find({_id: User[0].UserBookings[i]._id})
         if(BookExist.length!==0){
         var StartDate = BookExist[0].startDate;
         var Year = StartDate.getFullYear();
@@ -54,10 +53,10 @@ const bookRoom = async (req,res)=>{
         return res.status(400).json({"status" : "error" , data :{message : "You have a booking on the same date"}})
         }
         const newData = new Booking({startDate,endDate,noOfPersons,noOfRooms,typeOfRoom});
+        newData.bookedHotels.push(HotelName)
         const bookingData = await newData.save()
-        User[0].booking.push(bookingData);
+        User[0].UserBookings.push(bookingData);
         User[0].save();
-        res.cookie(`${HotelName}`,`${bookingData.bookingId}`)
         return res.status(201).json({"status" : "success" , data :{message : `Successfully made a booking with booking id ${bookingData.bookingId}`}, bookingData})
     }
     catch(error){
@@ -70,8 +69,8 @@ const RescheduleBooking = async (req,res)=>{
     const UserId = req.params.userId;
     const User = await user.find({userId : UserId})
     const listOfBookings = [];
-    for(let i=0; i< User[0].booking.length ; i++){
-        var BookExist = await Booking.find({_id: User[0].booking[i]._id})
+    for(let i=0; i< User[0].UserBookings.length ; i++){
+        var BookExist = await Booking.find({_id: User[0].UserBookings[i]._id})
         var BookingId = BookExist[0].bookingId
         listOfBookings.push(BookingId)
     }   
@@ -109,8 +108,8 @@ const DeleteBooking = async (req,res)=>{
         const User = await user.find({userId : UserId})
         const listOfBookings = [];
         var DeletedBookId;
-        for(let i=0; i< User[0].booking.length ; i++){
-            var id1 =  User[0].booking[i]._id;
+        for(let i=0; i< User[0].UserBookings.length ; i++){
+            var id1 =  User[0].UserBookings[i]._id;
             var bookExistForDelete = await Booking.find({_id: id1})
             var bookingIdForDelete = bookExistForDelete[0].bookingId
             if(bookingIdForDelete === BookingId){
@@ -121,7 +120,7 @@ const DeleteBooking = async (req,res)=>{
         if(UserId !== req.userId  || ! listOfBookings.includes(BookingId)){
         return res.status(400).json({"status" : "error" , data :{message : "Could not delete the booking"}})
         }
-        const newData = await user.updateOne({userId : UserId},{ $pull : { booking : DeletedBookId}})
+        const newData = await user.updateOne({userId : UserId},{ $pull : { UserBookings : DeletedBookId}})
         const BookExist = await Booking.deleteOne({bookingId : BookingId})
         return res.status(201).json({"status" : "success" , data :{message : `Successfully deleted the booking with booking id ${BookingId}`}})
     }
@@ -133,13 +132,9 @@ const DeleteBooking = async (req,res)=>{
 const getTotalBookings = async (req,res)=>{
     try{
         const UserId = req.params.userId;
-        const newData = await user.find({userId: UserId});
-        const BookingData = [];
-        for(let i=0; i< newData[0].booking.length ; i++){
-        BookingData.push(await Booking.find({_id: newData[0].booking[i]._id}))
-        }
-        if(BookingData.length){
-         return res.status(201).json({"status" : "success" ,"results": BookingData.length, data :{UserBookings : BookingData[0]}})
+        const newData = await user.find({userId: UserId},{_id:0,UserBookings:1}).populate("UserBookings");
+        if(newData[0].UserBookings.length){
+         return res.status(201).json({"status" : "success" ,"results": newData[0].UserBookings.length, data : {newData}})
         }
         else{
         return res.status(400).json({"status" : "success" ,data :{message : "No Bookings done yet"}})

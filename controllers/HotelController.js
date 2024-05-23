@@ -13,9 +13,9 @@ const addHotel = async (req,res)=>{
 }
 
 const getHotel = async (req,res)=>{
-    const newData = await Hotel.find({},{_id:0});
+    const hotels = await Hotel.find({},{_id:0});
     try{
-        res.status(201).json({"status" : "success" ,"results": newData.length, data :{hotels : newData}})
+        res.status(201).json({"status" : "success" ,"results": hotels.length, data : {hotels}})
     }
     catch(error){
         return res.status(500).json({error:"internal server error"})

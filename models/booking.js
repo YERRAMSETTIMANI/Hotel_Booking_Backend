@@ -22,14 +22,17 @@ const bookingSchema = new mongoose.Schema({
     },
     typeOfRoom:{
         type:String,
-    }
+    },
+    bookedHotels : [{
+        type:String
+    }]
 });
 
 bookingSchema.pre('save', async function(next){
     const book = this;
     if(book.isNew){
         try{
-            const lastUser = await Booking.findOne().sort({_id:-1});
+            const lastUser = await booking.findOne().sort({_id:-1});
             const lastId = lastUser ? lastUser.bookingId : 'B-000';
             const idNumber = parseInt(lastId.split('-')[1],10) + 1;
             book.bookingId = `B-${idNumber.toString().padStart(3,'0')}`;
@@ -41,5 +44,5 @@ bookingSchema.pre('save', async function(next){
     next();
 })
 
-const Booking = mongoose.model("booking", bookingSchema);
-module.exports = Booking;
+const booking = mongoose.model("booking", bookingSchema);
+module.exports = booking;
